@@ -1,9 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
+	"sort"
 )
 
 type user struct {
@@ -12,6 +11,18 @@ type user struct {
 	Age     int
 	Sayings []string
 }
+
+type ByAge []user
+
+func (a ByAge) Len() int           { return len(a) }
+func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByAge) Less(i, j int) bool { return a[i].Age < a[j].Age }
+
+type ByLast []user
+
+func (a ByLast) Len() int           { return len(a) }
+func (a ByLast) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByLast) Less(i, j int) bool { return a[i].Last < a[j].Last }
 
 func main() {
 	u1 := user{
@@ -50,10 +61,23 @@ func main() {
 	users := []user{u1, u2, u3}
 
 	fmt.Println(users)
+	for _, v := range users {
+		sort.Strings(v.Sayings)
 
-	err := json.NewEncoder(os.Stdout).Encode(users)
-	if err != nil {
-		fmt.Println(err)
 	}
+	fmt.Println(`------------ Sorted by age`)
+	sort.Sort(ByAge(users))
+	nicePrint(users)
+	fmt.Println(`------------ Sorted by age Last`)
+	sort.Sort(ByLast(users))
+	nicePrint(users)
 
+}
+func nicePrint(users []user) {
+	for i, v := range users {
+		fmt.Println(i, v.First, v.Last, v.Age)
+		for ii, vv := range v.Sayings {
+			fmt.Println("\t", ii, vv)
+		}
+	}
 }
